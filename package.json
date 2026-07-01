@@ -1,0 +1,50 @@
+{
+  "name": "marketing-engine",
+  "version": "1.0.0",
+  "description": "Restaurant outreach campaign management platform",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "seed": "node prisma/seed.js",
+    "whatsapp:create-template": "node --env-file=.env scripts/create-whatsapp-template.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.37.0",
+    "cheerio": "^1.2.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^1.11.0",
+    "next": "^16.2.4",
+    "nodemailer": "^8.0.7",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.4",
+    "@types/node": "^25.6.0",
+    "@types/nodemailer": "^8.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.4",
+    "prisma": "^6.19.0",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^6.0.3"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
+}

@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ValidationStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  CONTACTED
+}
+
+enum ContactKind {
+  EMAIL
+  PHONE
+}
+
+enum CampaignStatus {
+  DRAFT
+  READY
+  SCHEDULED
+  RUNNING
+  COMPLETED
+  PARTIAL_FAILURE
+}
+
+enum Channel {
+  EMAIL
+  WHATSAPP
+  SMS
+}
+
+enum RecipientStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+  OPENED
+  UNSUBSCRIBED
+  SKIPPED
+}
+
+enum MessageLogStatus {
+  DRY_RUN
+  SENT
+  FAILED
+  DELIVERED
+  OPENED
+  UNSUBSCRIBED
+  SKIPPED
+}
+
+model Location {
+  id          String     @id @default(cuid())
+  label       String
+  query       String
+  latitude    Float
+  longitude   Float
+  radiusKm    Float      @default(5)
+  source      String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  businesses  Business[]
+}
+
+model Business {
+  id               String           @id @default(cuid())
+  locationId       String?
+  googlePlaceId    String?          @unique
+  name             String
+  address          String
+  category         String
+  source           String
+  googleMapsUrl    String?
+  websiteUrl       String?
+  latitude         Float?
+  longitude        Float?
+  distanceMeters   Int?
+  primaryEmail     String?
+  primaryPhone     String?
+  whatsappEligible Boolean          @default(false)
+  hasPriorRelation Boolean          @default(false)
+  validationStatus ValidationStatus @default(PENDING_REVIEW)
+  notes            String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  location         Location?        @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  contacts         Contact[]
+  recipients       CampaignRecipient[]
+}
+
+model Contact {
+  id               String      @id @default(cuid())
+  businessId       String
+  kind             ContactKind
+  value            String
+  normalizedValue  String?
+  source           String
+  pageUrl          String?
+  confidenceScore  Int         @default(0)
+  isPublic         Boolean     @default(true)
+  isGeneric        Boolean     @default(false)
+  whatsappEligible Boolean     @default(false)
+  hasOptIn         Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  business         Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  recipients       CampaignRecipient[]
+
+  @@unique([businessId, kind, value])
+}
+
+model Campaign {
+  id                  String              @id @default(cuid())
+  name                String
+  emailSubject        String
+  emailBody           String
+  whatsappBody        String
+  posterImageUrl      String?
+  posterImageName     String?
+  offer               String?
+  offerExpiryDate     DateTime?
+  restaurantName      String
+  restaurantAddress   String
+  restaurantPhone     String
+  restaurantWebsite   String?
+  status              CampaignStatus      @default(DRAFT)
+  lastPreviewedAt     DateTime?
+  lastSentAt          DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  recipients          CampaignRecipient[]
+  messageLogs         MessageLog[]
+}
+
+model CampaignRecipient {
+  id            String          @id @default(cuid())
+  campaignId    String
+  businessId    String
+  contactId     String?
+  channel       Channel
+  destination   String
+  status        RecipientStatus @default(PENDING)
+  dryRun        Boolean         @default(false)
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  openedAt      DateTime?
+  unsubscribedAt DateTime?
+  providerId    String?
+  lastError     String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  campaign      Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  business      Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  contact       Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  messageLogs   MessageLog[]
+
+  @@unique([campaignId, businessId, channel, destination])
+}
+
+model MessageLog {
+  id                  String           @id @default(cuid())
+  campaignId          String?
+  campaignRecipientId String?
+  channel             Channel
+  destination         String
+  status              MessageLogStatus
+  provider            String
+  providerId          String?
+  requestBody         String?
+  responseBody        String?
+  error               String?
+  metadata            String?
+  createdAt           DateTime         @default(now())
+  campaign            Campaign?        @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  campaignRecipient   CampaignRecipient? @relation(fields: [campaignRecipientId], references: [id], onDelete: SetNull)
+}
+
+model OptOut {
+  id          String    @id @default(cuid())
+  channel     Channel
+  email       String?
+  phone       String?
+  reason      String?
+  source      String    @default("user_request")
+  createdAt   DateTime  @default(now())
+
+  @@unique([channel, email])
+  @@unique([channel, phone])
+}

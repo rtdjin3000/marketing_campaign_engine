@@ -1,0 +1,17 @@
+node_modules
+.next
+.turbo
+coverage
+dist
+*.log
+.env
+.env.local
+.env.*.local
+prisma/dev.db
+prisma/dev.db-journal
+# SQLite databases anywhere (contain real customer data) — also covers prisma/prisma/dev.db
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite3

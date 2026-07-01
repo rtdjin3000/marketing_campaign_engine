@@ -1,0 +1,36 @@
+import { z } from "zod";
+
+const envSchema = z.object({
+  DATABASE_URL: z.string().default("file:./prisma/dev.db"),
+  GOOGLE_MAPS_API_KEY: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
+  OPENAI_MODEL: z.string().default("gpt-4o-mini"),
+  EMAIL_PROVIDER: z.enum(["smtp", "sendgrid", "mailgun"]).default("smtp"),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_FROM: z.string().default("campaigns@example.com"),
+  SENDGRID_API_KEY: z.string().optional(),
+  MAILGUN_API_KEY: z.string().optional(),
+  TWILIO_ACCOUNT_SID: z.string().optional(),
+  TWILIO_AUTH_TOKEN: z.string().optional(),
+  TWILIO_FROM_NUMBER: z.string().optional(),
+  SMS_PROVIDER: z.enum(["twilio", "telnyx"]).default("telnyx"),
+  TELNYX_API_KEY: z.string().optional(),
+  TELNYX_FROM_NUMBER: z.string().optional(),
+  TELNYX_MESSAGING_PROFILE_ID: z.string().optional(),
+  META_WHATSAPP_ACCESS_TOKEN: z.string().optional(),
+  META_WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
+  META_WHATSAPP_BUSINESS_ACCOUNT_ID: z.string().optional(),
+  META_WHATSAPP_TEMPLATE_NAME: z.string().optional(),
+  META_WHATSAPP_TEMPLATE_LANGUAGE: z.string().default("en_US"),
+  APP_BASE_URL: z.string().default("http://localhost:3000"),
+  UPSTASH_REDIS_REST_URL: z.string().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  CLOVER_MERCHANT_ID: z.string().optional(),
+  CLOVER_API_TOKEN: z.string().optional(),
+  CLOVER_API_BASE_URL: z.string().default("https://api.clover.com"),
+});
+
+export const env = envSchema.parse(process.env);
